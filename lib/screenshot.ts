@@ -30,7 +30,7 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
         await page.setViewport({ width: 1280, height: 800 });
 
         // Set a reasonable timeout
-        await page.goto(url, { waitUntil: "load", timeout: 60000 });
+        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
 
         // Add a small delay to ensure animations/lazy loading finish
         await new Promise(r => setTimeout(r, 2000));
@@ -38,9 +38,10 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
         const screenshotBuffer = await page.screenshot({ type: "png" });
         return screenshotBuffer as Buffer;
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("Screenshot capture failed:", error);
-        throw new Error("Failed to capture website screenshot. The site might be blocking bots or is unreachable.");
+        // Throw the actual error message for debugging
+        throw new Error(`Screenshot failed: ${error.message || error}`);
     } finally {
         if (browser) {
             await browser.close();
