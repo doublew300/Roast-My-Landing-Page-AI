@@ -15,14 +15,18 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
             });
         } else {
             browser = await puppeteer.launch({
-                args: chromium.args,
+                args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
                 defaultViewport: chromium.defaultViewport,
                 executablePath: await chromium.executablePath(),
                 headless: chromium.headless,
+                ignoreHTTPSErrors: true,
             });
         }
 
         const page = await browser.newPage();
+        // Set a real user agent to avoid getting blocked immediately
+        await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36");
+
         await page.setViewport({ width: 1280, height: 800 });
 
         // Set a reasonable timeout
