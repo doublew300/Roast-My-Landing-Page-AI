@@ -21,7 +21,7 @@ Built with a modern stack focused on performance and scalability, this project d
 ## 🛠️ Tech Stack
 
 -   **Framework**: [Next.js 14](https://nextjs.org/) (App Router, Server Actions)
--   **AI Model**: [Google Gemini 1.5 Pro](https://ai.google.dev/) (Multimodal Vision capabilities)
+-   **AI Model**: [Google Gemini 3 Pro](https://ai.google.dev/) (Multimodal Vision capabilities)
 -   **Database**: [Supabase](https://supabase.com/) (PostgreSQL)
 -   **Styling**: [Tailwind CSS](https://tailwindcss.com/) & [Shadcn UI](https://ui.shadcn.com/)
 -   **Browser Automation**: [Puppeteer](https://pptr.dev/) (via `@sparticuz/chromium` for serverless support)
