@@ -14,6 +14,8 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
                 headless: true,
             });
         } else {
+            // Vercel / AWS Lambda config
+            chromium.setGraphicsMode = false;
             browser = await puppeteer.launch({
                 args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
                 defaultViewport: chromium.defaultViewport,
