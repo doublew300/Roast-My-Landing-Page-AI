@@ -22,6 +22,9 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
                 executablePath: await chromium.executablePath(
                     "https://github.com/Sparticuz/chromium/releases/download/v119.0.0/chromium-v119.0.0-pack.tar"
                 ),
+                await chromium.font(
+                    "https://github.com/Sparticuz/chromium/releases/download/v119.0.0/aws-lambda-fonts.tar"
+                ),
                 headless: chromium.headless,
                 // @ts-ignore
                 ignoreHTTPSErrors: true,
