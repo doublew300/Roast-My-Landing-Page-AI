@@ -7,7 +7,7 @@ const LOCAL_CHROME_EXECUTABLE =
 export async function captureScreenshot(url: string): Promise<Buffer> {
     let browser;
     try {
-        if (process.env.NODE_ENV === "development") {
+        if (process.env.NODE_ENV === "development" || process.platform === "win32") {
             browser = await puppeteer.launch({
                 args: ["--no-sandbox", "--disable-setuid-sandbox"],
                 executablePath: LOCAL_CHROME_EXECUTABLE, // Adjust for your local machine
@@ -20,7 +20,7 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
                 args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
                 defaultViewport: chromium.defaultViewport,
                 executablePath: await chromium.executablePath(
-                    "https://github.com/Sparticuz/chromium/releases/download/v123.0.1/chromium-v123.0.1-pack.tar"
+                    "https://github.com/Sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-pack.tar"
                 ),
                 headless: chromium.headless,
                 ignoreHTTPSErrors: true,
