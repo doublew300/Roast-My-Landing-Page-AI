@@ -90,7 +90,7 @@ export default function GalleryPage() {
                         Hall of <span className="text-orange-500 text-glow">Shame</span>
                     </h1>
                     <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
-                        A collection of the internet's biggest victims. <br />
+                        A collection of the internet&apos;s biggest victims. <br />
                         See who survived the roast and who got burned.
                     </p>
                 </div>
