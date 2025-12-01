@@ -1,14 +1,10 @@
-# Roast My Landing Page AI 🔥
-
-An intelligent, AI-powered tool that analyzes landing pages and provides brutal, honest, and actionable feedback to help developers and founders improve their conversion rates.
+# 🍳 Roast My Landing Page AI
 
 ![Project Banner](public/og-image.png)
 
-## 🚀 Overview
+> "A viral app that uses Computer Vision (Gemini Pro) to critique websites in the style of Steve Jobs & Gordon Ramsay."
 
 **Roast My Landing Page AI** leverages the power of **Google Gemini 1.5 Pro** and **Puppeteer** to visually analyze websites and generate comprehensive critiques. Unlike generic audit tools, this application "sees" the page like a user does, identifying design flaws, copy issues, and UX bottlenecks with human-like perception.
-
-Built with a modern stack focused on performance and scalability, this project demonstrates the integration of multimodal AI agents into a seamless full-stack web application.
 
 ## ✨ Key Features
 
@@ -20,48 +16,32 @@ Built with a modern stack focused on performance and scalability, this project d
 
 ## 🛠️ Tech Stack
 
--   **Framework**: [Next.js 14](https://nextjs.org/) (App Router, Server Actions)
--   **AI Model**: [Google Gemini 1.5 Pro](https://ai.google.dev/) (Multimodal Vision capabilities)
--   **Database**: [Supabase](https://supabase.com/) (PostgreSQL)
--   **Styling**: [Tailwind CSS](https://tailwindcss.com/) & [Shadcn UI](https://ui.shadcn.com/)
--   **Browser Automation**: [Puppeteer](https://pptr.dev/) (via `@sparticuz/chromium` for serverless support)
--   **Language**: TypeScript
+-   **Next.js 14** (App Router, Server Actions)
+-   **Google Gemini Vision API** (Multimodal AI)
+-   **Puppeteer** (Serverless / Chromium)
+-   **Supabase** (PostgreSQL + RLS)
+-   **TypeScript** (Strict typing)
+-   **Tailwind CSS** (Styling)
 
-## 🏁 Getting Started
+## 🏁 How to Run
 
-### Prerequisites
-
--   Node.js 18+
--   Supabase Account
--   Google AI Studio API Key
-
-### Installation
-
-1.  **Clone the repository**
+1.  **Clone & Install**
     ```bash
     git clone https://github.com/yourusername/roast-my-landing-page-ai.git
     cd roast-my-landing-page-ai
-    ```
-
-2.  **Install dependencies**
-    ```bash
     npm install
     ```
 
-3.  **Set up Environment Variables**
-    Create a `.env` file in the root directory and add the following:
-    ```env
-    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-    GEMINI_API_KEY=your_gemini_api_key
+2.  **Set up Environment**
+    Copy `.env.example` to `.env` and fill in your keys:
+    ```bash
+    cp .env.example .env
     ```
 
-4.  **Run the development server**
+3.  **Run**
     ```bash
     npm run dev
     ```
-
-    Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ## 🤝 Contributing
 
