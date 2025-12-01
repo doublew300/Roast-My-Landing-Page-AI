@@ -1,4 +1,4 @@
-import chromium from "@sparticuz/chromium";
+import chromium from "@sparticuz/chromium-min";
 import puppeteer from "puppeteer-core";
 
 const LOCAL_CHROME_EXECUTABLE =
@@ -19,7 +19,9 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
             browser = await puppeteer.launch({
                 args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
                 defaultViewport: chromium.defaultViewport,
-                executablePath: await chromium.executablePath(),
+                executablePath: await chromium.executablePath(
+                    "https://github.com/Sparticuz/chromium/releases/download/v123.0.1/chromium-v123.0.1-pack.tar"
+                ),
                 headless: chromium.headless,
                 ignoreHTTPSErrors: true,
             });
