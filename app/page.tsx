@@ -17,18 +17,18 @@ export default function Home() {
     const [persona, setPersona] = useState("ramsay");
     const roastCardRef = useRef<HTMLDivElement>(null);
 
-    const loadingPhrases = [
-        "Analyzing crooked CSS...",
-        "Looking for Comic Sans...",
-        "Oh god, who designed this...",
-        "Picking the most offensive words...",
-        "Calculating toxicity levels...",
-        "Consulting with Steve Jobs' ghost...",
-        "Trying not to laugh...",
-        "Loading emotional damage...",
-    ];
-
     useEffect(() => {
+        const loadingPhrases = [
+            "Analyzing crooked CSS...",
+            "Looking for Comic Sans...",
+            "Oh god, who designed this...",
+            "Picking the most offensive words...",
+            "Calculating toxicity levels...",
+            "Consulting with Steve Jobs' ghost...",
+            "Trying not to laugh...",
+            "Loading emotional damage...",
+        ];
+
         let interval: NodeJS.Timeout;
         if (loading) {
             setLoadingText(loadingPhrases[0]);
@@ -375,7 +375,7 @@ export default function Home() {
 
                                             <div className="bg-neutral-950/50 p-6 rounded-xl border border-neutral-800">
                                                 <p className="text-xl leading-relaxed text-gray-300 font-medium">
-                                                    "{result.roast.split('.')[0]}."
+                                                    &quot;{result.roast.split('.')[0]}.&quot;
                                                 </p>
                                             </div>
                                         </div>
@@ -456,7 +456,7 @@ export default function Home() {
                                         {site.score}/10
                                     </span>
                                 </div>
-                                <p className="text-gray-400 text-sm leading-relaxed">"{site.review}"</p>
+                                <p className="text-gray-400 text-sm leading-relaxed">&quot;{site.review}&quot;</p>
                             </div>
                         ))}
                     </div>

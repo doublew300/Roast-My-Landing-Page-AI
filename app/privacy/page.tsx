@@ -16,7 +16,7 @@ export default function Privacy() {
                 <section className="space-y-4">
                     <h2 className="text-2xl font-semibold">2. Use of Information</h2>
                     <p className="text-gray-400">
-                        The URLs submitted may be publicly displayed in our "Hall of Shame" or gallery. By submitting a URL, you acknowledge that the analysis and screenshot of the site may be made public.
+                        The URLs submitted may be publicly displayed in our &quot;Hall of Shame&quot; or gallery. By submitting a URL, you acknowledge that the analysis and screenshot of the site may be made public.
                     </p>
                 </section>
 

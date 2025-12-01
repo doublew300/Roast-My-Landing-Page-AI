@@ -11,7 +11,7 @@ export default function GalleryPage() {
 
     useEffect(() => {
         fetchRoasts();
-    }, [activeTab]);
+    }, [activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const fetchRoasts = async () => {
         setLoading(true);
@@ -160,8 +160,8 @@ export default function GalleryPage() {
                                     )}
                                     <div className="absolute top-4 right-4">
                                         <span className={`px-3 py-1.5 rounded-full text-sm font-black backdrop-blur-md border border-white/10 shadow-xl ${site.score < 4 ? 'bg-red-500/90 text-white' :
-                                                site.score < 7 ? 'bg-orange-500/90 text-white' :
-                                                    'bg-green-500/90 text-white'
+                                            site.score < 7 ? 'bg-orange-500/90 text-white' :
+                                                'bg-green-500/90 text-white'
                                             }`}>
                                             {site.score}/10
                                         </span>
@@ -173,7 +173,7 @@ export default function GalleryPage() {
 
                                 <div className="p-6 flex flex-col flex-grow">
                                     <p className="text-gray-400 text-sm leading-relaxed mb-6 flex-grow line-clamp-4 italic">
-                                        "{site.roast}"
+                                        &quot;{site.roast}&quot;
                                     </p>
 
                                     <div className="pt-4 border-t border-white/5 flex justify-between items-center">
@@ -205,7 +205,7 @@ export default function GalleryPage() {
                                 <Search className="w-12 h-12 text-gray-600" />
                             </div>
                             <p className="text-2xl font-bold text-gray-300">No victims found</p>
-                            <p className="text-gray-500 mt-2">Maybe they're hiding from the roast?</p>
+                            <p className="text-gray-500 mt-2">Maybe they&apos;re hiding from the roast?</p>
                         </div>
                     )
                 }
