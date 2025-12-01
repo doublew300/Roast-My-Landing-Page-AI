@@ -17,13 +17,13 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
             // Vercel / AWS Lambda config
             chromium.setGraphicsMode = false;
             await chromium.font(
-                "https://github.com/Sparticuz/chromium/releases/download/v119.0.0/aws-lambda-fonts.tar"
+                "https://github.com/Sparticuz/chromium/releases/download/v119.0.2/aws-lambda-fonts.tar"
             );
             browser = await puppeteer.launch({
                 args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
                 defaultViewport: chromium.defaultViewport,
                 executablePath: await chromium.executablePath(
-                    "https://github.com/Sparticuz/chromium/releases/download/v119.0.0/chromium-v119.0.0-pack.tar"
+                    "https://github.com/Sparticuz/chromium/releases/download/v119.0.2/chromium-v119.0.2-pack.tar"
                 ),
                 headless: chromium.headless,
                 // @ts-ignore
