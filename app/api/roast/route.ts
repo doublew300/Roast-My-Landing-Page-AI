@@ -16,6 +16,33 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "URL is required" }, { status: 400 });
         }
 
+        // Rate Limiting
+        const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || "unknown";
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+        const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+        if (ip !== "unknown" && process.env.NODE_ENV !== "development") {
+            const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+            const { count, error: countError } = await supabase
+                .from("request_logs")
+                .select("*", { count: "exact", head: true })
+                .eq("ip", ip)
+                .gt("created_at", oneHourAgo);
+
+            if (countError) {
+                console.error("Rate limit check failed:", countError);
+            } else if (count && count >= 5) {
+                return NextResponse.json(
+                    { error: "Too many roasts! You're cooking too hard. Try again in an hour." },
+                    { status: 429 }
+                );
+            }
+
+            // Log the request
+            await supabase.from("request_logs").insert({ ip });
+        }
+
         // 1. Capture Screenshot
         const screenshotBuffer = await captureScreenshot(url);
         const base64Image = screenshotBuffer.toString("base64");
