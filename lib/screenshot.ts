@@ -21,7 +21,7 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
                 args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
                 defaultViewport: chromium.defaultViewport,
                 executablePath: await chromium.executablePath(
-                    "https://github.com/Sparticuz/chromium/releases/download/v119.0.2/chromium-v119.0.2-pack.tar"
+                    "https://github.com/Sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-pack.tar"
                 ),
                 headless: chromium.headless,
                 // @ts-ignore
