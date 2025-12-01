@@ -16,9 +16,7 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
         } else {
             // Vercel / AWS Lambda config
             chromium.setGraphicsMode = false;
-            await chromium.font(
-                "https://github.com/Sparticuz/chromium/releases/download/v116.0.0/aws-lambda-fonts.tar"
-            );
+
             browser = await puppeteer.launch({
                 args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
                 defaultViewport: chromium.defaultViewport,
