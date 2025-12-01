@@ -23,6 +23,7 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
                     "https://github.com/Sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-pack.tar"
                 ),
                 headless: chromium.headless,
+                // @ts-ignore
                 ignoreHTTPSErrors: true,
             });
         }
