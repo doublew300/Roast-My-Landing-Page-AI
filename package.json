@@ -1,3 +1,16 @@
+{
+  "name": "roast-my-landing-page-ai",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": "18.x"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
   "dependencies": {
     "@google/generative-ai": "^0.11.1",
     "@sparticuz/chromium-min": "^119.0.2",
