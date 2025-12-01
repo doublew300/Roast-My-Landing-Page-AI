@@ -5,7 +5,7 @@ export async function generateRoast(imageBuffer: Buffer, persona: string = 'rams
     try {
         const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || "");
         const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-pro", // Updated to stable model name if applicable, or keep as used
+            model: "gemini-3-pro-preview", // Updated to stable model name if applicable, or keep as used
             generationConfig: { responseMimeType: "application/json" }
         });
 
