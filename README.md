@@ -4,7 +4,7 @@
 
 > "A viral app that uses Computer Vision (Gemini Pro) to critique websites in the style of Steve Jobs & Gordon Ramsay."
 
-**Roast My Landing Page AI** leverages the power of **Google Gemini 1.5 Pro** and **Puppeteer** to visually analyze websites and generate comprehensive critiques. Unlike generic audit tools, this application "sees" the page like a user does, identifying design flaws, copy issues, and UX bottlenecks with human-like perception.
+**Roast My Landing Page AI** leverages the power of **Google Gemini 3 Pro** and **Puppeteer** to visually analyze websites and generate comprehensive critiques. Unlike generic audit tools, this application "sees" the page like a user does, identifying design flaws, copy issues, and UX bottlenecks with human-like perception.
 
 ## ✨ Key Features
 
