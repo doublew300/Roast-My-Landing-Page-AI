@@ -10,6 +10,9 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
     try {
         if (process.env.VERCEL) {
             // === VERCEL CONFIGURATION ===
+            // Load the fonts (required to prevent ENOENT error)
+            await chromium.font("https://github.com/Sparticuz/chromium/releases/download/v119.0.0/aws-lambda-fonts.tar");
+
             // Specify the link to download the binary
             const executablePath = await chromium.executablePath(CHROMIUM_URL);
 
