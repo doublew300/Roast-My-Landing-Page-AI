@@ -3,36 +3,43 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "@google/generative-ai": "^0.11.1",
-    "@sparticuz/chromium-min": "^119.0.0",
-    "@supabase/supabase-js": "^2.43.1",
-    "downloadjs": "^1.4.7",
-    "html-to-image": "^1.11.11",
-    "lucide-react": "^0.378.0",
-    "next": "14.2.3",
-    "puppeteer-core": "^21.11.0",
-    "react": "^18",
-    "react-dom": "^18",
-    "react-markdown": "^9.0.1",
-    "sonner": "^1.4.41"
-  },
-  "devDependencies": {
-    "@types/downloadjs": "^1.4.6",
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "autoprefixer": "^10.0.1",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.3",
-    "postcss": "^8",
-    "puppeteer": "^21.11.0",
-    "tailwindcss": "^3.3.0",
-    "typescript": "^5"
-  }
-}
+```json
+{
+      "name": "roast-my-landing-page-ai",
+      "version": "0.1.0",
+      "private": true,
+      "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint"
+      },
+      "dependencies": {
+        "@google/generative-ai": "^0.11.1",
+        "@sparticuz/chromium-min": "^123.0.1",
+        "@supabase/supabase-js": "^2.43.1",
+        "downloadjs": "^1.4.7",
+        "html-to-image": "^1.11.11",
+        "lucide-react": "^0.378.0",
+        "next": "14.2.3",
+        "puppeteer-core": "^22.6.0",
+        "react": "^18",
+        "react-dom": "^18",
+        "react-markdown": "^9.0.1",
+        "sonner": "^1.4.41"
+      },
+      "devDependencies": {
+        "@types/downloadjs": "^1.4.6",
+        "@types/node": "^20",
+        "@types/react": "^18",
+        "@types/react-dom": "^18",
+        "autoprefixer": "^10.0.1",
+        "eslint": "^8",
+        "eslint-config-next": "14.2.3",
+        "postcss": "^8",
+        "puppeteer": "^22.6.0",
+        "tailwindcss": "^3.3.0",
+        "typescript": "^5"
+      }
+    }
+```
