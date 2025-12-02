@@ -1,8 +1,8 @@
 import core from "puppeteer-core";
 import chromium from "@sparticuz/chromium-min";
 
-// Direct link to the verified browser build (version 123)
-const CHROMIUM_URL = "https://github.com/Sparticuz/chromium/releases/download/v123.0.1/chromium-v123.0.1-pack.tar";
+// Direct link to the verified browser build (version 116)
+const CHROMIUM_URL = "https://github.com/Sparticuz/chromium/releases/download/v116.0.0/chromium-v116.0.0-pack.tar";
 
 export async function captureScreenshot(url: string): Promise<Buffer> {
     let browser;
