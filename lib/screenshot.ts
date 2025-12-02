@@ -1,8 +1,8 @@
 import core from "puppeteer-core";
 import chromium from "@sparticuz/chromium-min";
 
-// Direct link to the verified browser build (version 131 for Node 20)
-const CHROMIUM_URL = "https://github.com/Sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-pack.tar";
+// Direct link to the verified browser build (version 119)
+const CHROMIUM_URL = "https://github.com/Sparticuz/chromium/releases/download/v119.0.0/chromium-v119.0.0-pack.tar";
 
 export async function captureScreenshot(url: string): Promise<Buffer> {
     let browser;
