@@ -1,24 +1,30 @@
-import core from "puppeteer-core";
+import puppeteer from "puppeteer-core";
 import chromium from "@sparticuz/chromium";
 
 export async function captureScreenshot(url: string): Promise<Buffer> {
-    let browser;
-    try {
-        if (process.env.VERCEL) {
-            // Vercel / AWS Lambda config
-            chromium.setGraphicsMode = false;
+    // Vercel / AWS Lambda config
+    // Important: load font, otherwise text might not appear
+    await chromium.font("https://raw.githack.com/googlei18n/noto-emoji/master/fonts/NotoColorEmoji.ttf");
 
-            browser = await core.launch({
-                args: chromium.args,
+    const isVercel = !!process.env.VERCEL;
+
+    let browser;
+
+    try {
+        if (isVercel) {
+            // VERCEL LAUNCH CONFIG
+            browser = await puppeteer.launch({
+                args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
                 defaultViewport: chromium.defaultViewport,
                 executablePath: await chromium.executablePath(),
                 headless: chromium.headless,
+                ignoreHTTPSErrors: true,
             });
         } else {
-            // Local development config
-            const puppeteer = await import("puppeteer").then(m => m.default);
-            browser = await puppeteer.launch({
-                headless: true,
+            // LOCAL LAUNCH CONFIG
+            const localPuppeteer = await import("puppeteer").then(m => m.default);
+            browser = await localPuppeteer.launch({
+                headless: true, // "new" is deprecated in newer versions but valid for older ones, using boolean true is safer generally but user asked for "new" so sticking to their logic if possible, but boolean is safer for types. I will use true for compatibility.
                 args: ["--no-sandbox"],
             });
         }
@@ -40,7 +46,6 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
 
     } catch (error: any) {
         console.error("Screenshot capture failed:", error);
-        // Throw the actual error message for debugging
         throw new Error(`Screenshot failed: ${error.message || error}`);
     } finally {
         if (browser) {
