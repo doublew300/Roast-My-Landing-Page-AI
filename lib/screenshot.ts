@@ -1,31 +1,25 @@
-import chromium from "@sparticuz/chromium-min";
-import puppeteer from "puppeteer-core";
-
-const LOCAL_CHROME_EXECUTABLE =
-    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+import core from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
 
 export async function captureScreenshot(url: string): Promise<Buffer> {
     let browser;
     try {
-        if (process.env.NODE_ENV === "development" || process.platform === "win32") {
-            browser = await puppeteer.launch({
-                args: ["--no-sandbox", "--disable-setuid-sandbox"],
-                executablePath: LOCAL_CHROME_EXECUTABLE, // Adjust for your local machine
-                headless: true,
-            });
-        } else {
+        if (process.env.VERCEL) {
             // Vercel / AWS Lambda config
             chromium.setGraphicsMode = false;
 
-            browser = await puppeteer.launch({
-                args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
+            browser = await core.launch({
+                args: chromium.args,
                 defaultViewport: chromium.defaultViewport,
-                executablePath: await chromium.executablePath(
-                    "https://github.com/Sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-pack.tar"
-                ),
+                executablePath: await chromium.executablePath(),
                 headless: chromium.headless,
-                // @ts-ignore
-                ignoreHTTPSErrors: true,
+            });
+        } else {
+            // Local development config
+            const puppeteer = await import("puppeteer").then(m => m.default);
+            browser = await puppeteer.launch({
+                headless: true,
+                args: ["--no-sandbox"],
             });
         }
 
