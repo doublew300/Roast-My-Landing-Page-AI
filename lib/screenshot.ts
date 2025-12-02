@@ -1,30 +1,30 @@
-import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium";
+import core from "puppeteer-core";
+import chromium from "@sparticuz/chromium-min";
+
+// Direct link to the verified browser build (version 123)
+const CHROMIUM_URL = "https://github.com/Sparticuz/chromium/releases/download/v123.0.1/chromium-v123.0.1-pack.tar";
 
 export async function captureScreenshot(url: string): Promise<Buffer> {
-    // Vercel / AWS Lambda config
-    // Important: load font, otherwise text might not appear
-    await chromium.font("https://raw.githack.com/googlei18n/noto-emoji/master/fonts/NotoColorEmoji.ttf");
-
-    const isVercel = !!process.env.VERCEL;
-
     let browser;
 
     try {
-        if (isVercel) {
-            // VERCEL LAUNCH CONFIG
-            browser = await puppeteer.launch({
-                args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
+        if (process.env.VERCEL) {
+            // === VERCEL CONFIGURATION ===
+            // Specify the link to download the binary
+            const executablePath = await chromium.executablePath(CHROMIUM_URL);
+
+            browser = await core.launch({
+                args: chromium.args,
                 defaultViewport: chromium.defaultViewport,
-                executablePath: await chromium.executablePath(),
+                executablePath: executablePath,
                 headless: chromium.headless,
-                ignoreHTTPSErrors: true,
             });
+
         } else {
-            // LOCAL LAUNCH CONFIG
-            const localPuppeteer = await import("puppeteer").then(m => m.default);
-            browser = await localPuppeteer.launch({
-                headless: true, // "new" is deprecated in newer versions but valid for older ones, using boolean true is safer generally but user asked for "new" so sticking to their logic if possible, but boolean is safer for types. I will use true for compatibility.
+            // === LOCALHOST CONFIGURATION ===
+            const puppeteer = await import("puppeteer").then(m => m.default);
+            browser = await puppeteer.launch({
+                headless: true,
                 args: ["--no-sandbox"],
             });
         }
