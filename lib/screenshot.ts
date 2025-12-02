@@ -11,7 +11,7 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
         if (process.env.VERCEL) {
             // === VERCEL CONFIGURATION ===
             // Load the fonts (required to prevent ENOENT error)
-            await chromium.font("https://github.com/Sparticuz/chromium/releases/download/v119.0.0/aws-lambda-fonts.tar");
+            await chromium.font("https://raw.githack.com/googlei18n/noto-emoji/master/fonts/NotoColorEmoji.ttf");
 
             // Specify the link to download the binary
             const executablePath = await chromium.executablePath(CHROMIUM_URL);
