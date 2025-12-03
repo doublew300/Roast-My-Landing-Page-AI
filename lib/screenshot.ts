@@ -1,8 +1,5 @@
 import core from "puppeteer-core";
-import chromium from "@sparticuz/chromium-min";
-
-// Direct link to the verified browser build (version 132)
-const CHROMIUM_URL = "https://github.com/Sparticuz/chromium/releases/download/v132.0.0/chromium-v132.0.0-pack.tar";
+import chromium from "@sparticuz/chromium";
 
 export async function captureScreenshot(url: string): Promise<Buffer> {
     let browser;
@@ -10,8 +7,8 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
     try {
         if (process.env.VERCEL) {
             // === VERCEL CONFIGURATION ===
-            // Specify the link to download the binary
-            const executablePath = await chromium.executablePath(CHROMIUM_URL);
+            // Use the local binary from the package
+            const executablePath = await chromium.executablePath();
 
             browser = await core.launch({
                 args: chromium.args,
