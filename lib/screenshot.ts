@@ -3,10 +3,11 @@ import path from "path";
 import fs from "fs";
 import https from "https";
 import AdmZip from "adm-zip";
+import zlib from "zlib";
+import { execSync } from "child_process";
 
-// URL for Chrome for Testing (Headless Shell) - Linux x64
-// Using a known stable version compatible with Puppeteer Core v24
-const CHROME_URL = "https://storage.googleapis.com/chrome-for-testing-public/121.0.6167.85/linux64/chrome-headless-shell-linux64.zip";
+// URL for the Chromium Layer (contains al2023.tar.br)
+const CHROMIUM_LAYER_URL = "https://github.com/Sparticuz/chromium/releases/download/v132.0.0/chromium-v132.0.0-layer.zip";
 
 async function downloadFile(url: string, destPath: string): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -41,44 +42,96 @@ async function downloadFile(url: string, destPath: string): Promise<void> {
     });
 }
 
+// Helper to recursively find a file
+function findEntry(startDir: string, name: string): string | null {
+    if (!fs.existsSync(startDir)) return null;
+    const files = fs.readdirSync(startDir);
+    for (const file of files) {
+        const fullPath = path.join(startDir, file);
+        const stat = fs.statSync(fullPath);
+        if (file === name) return fullPath;
+        if (stat.isDirectory()) {
+            const result = findEntry(fullPath, name);
+            if (result) return result;
+        }
+    }
+    return null;
+}
+
 export async function captureScreenshot(url: string): Promise<Buffer> {
     let browser;
     try {
         if (process.env.VERCEL) {
-            console.log("Running on Vercel (Chrome for Testing)...");
+            console.log("Running on Vercel (AL2023 Strategy)...");
             const tmpDir = "/tmp";
-            const zipPath = path.join(tmpDir, "chrome-headless-shell.zip");
-            const extractDir = path.join(tmpDir, "chrome-headless-shell");
-            const binaryPath = path.join(extractDir, "chrome-headless-shell-linux64", "chrome-headless-shell");
+            const zipPath = path.join(tmpDir, "chromium-layer.zip");
+            const extractDir = path.join(tmpDir, "chromium-layer");
+            const finalChromiumPath = path.join(extractDir, "chromium");
 
-            if (!fs.existsSync(binaryPath)) {
-                console.log("Binary not found, downloading...");
+            // 1. Check if already ready
+            if (!fs.existsSync(finalChromiumPath)) {
+                console.log("Chromium not found, starting setup...");
+
+                // Cleanup
                 if (fs.existsSync(extractDir)) fs.rmSync(extractDir, { recursive: true, force: true });
+                fs.mkdirSync(extractDir, { recursive: true });
 
-                await downloadFile(CHROME_URL, zipPath);
-                console.log("Download complete. Extracting...");
+                // 2. Download Layer Zip
+                console.log("Downloading layer...");
+                await downloadFile(CHROMIUM_LAYER_URL, zipPath);
 
+                // 3. Extract Layer Zip
+                console.log("Extracting layer zip...");
                 const zip = new AdmZip(zipPath);
                 zip.extractAllTo(extractDir, true);
-                console.log("Extraction complete.");
                 fs.unlinkSync(zipPath);
 
-                if (fs.existsSync(binaryPath)) {
-                    fs.chmodSync(binaryPath, 0o755);
-                } else {
-                    throw new Error(`Binary not found at ${binaryPath}`);
+                // 4. Find al2023.tar.br
+                const tarBrPath = findEntry(extractDir, "al2023.tar.br");
+                if (!tarBrPath) {
+                    throw new Error("Could not find al2023.tar.br in extracted layer!");
                 }
+                console.log("Found al2023.tar.br at:", tarBrPath);
+
+                // 5. Decompress Brotli (.br -> .tar)
+                const tarPath = path.join(extractDir, "chromium.tar");
+                console.log("Decompressing Brotli...");
+                const brotliData = fs.readFileSync(tarBrPath);
+                const tarData = zlib.brotliDecompressSync(brotliData);
+                fs.writeFileSync(tarPath, tarData);
+
+                // 6. Extract Tar (.tar -> files)
+                console.log("Extracting Tar...");
+                // Use system tar command (available on AL2023)
+                execSync(`tar -xf "${tarPath}" -C "${extractDir}"`);
+                fs.unlinkSync(tarPath);
+
+                // 7. Verify Binary
+                // The tarball usually extracts to a 'chromium' file or folder
+                if (!fs.existsSync(finalChromiumPath)) {
+                    // Try to find it if it's nested
+                    const found = findEntry(extractDir, "chromium");
+                    if (found) {
+                        // Move it to expected location or update path
+                        fs.renameSync(found, finalChromiumPath);
+                    } else {
+                        throw new Error("Chromium binary not found after tar extraction!");
+                    }
+                }
+
+                fs.chmodSync(finalChromiumPath, 0o755);
+                console.log("Chromium setup complete at:", finalChromiumPath);
             }
 
             browser = await core.launch({
-                executablePath: binaryPath,
+                executablePath: finalChromiumPath,
                 args: [
                     "--no-sandbox",
                     "--disable-setuid-sandbox",
                     "--disable-dev-shm-usage",
                     "--disable-gpu",
                     "--no-zygote",
-                    "--single-process", // Often needed for serverless
+                    "--single-process",
                     "--hide-scrollbars",
                 ],
                 headless: "shell"
