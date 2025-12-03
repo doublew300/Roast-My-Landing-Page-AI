@@ -117,8 +117,37 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
                         // Move it to expected location or update path
                         if (fs.statSync(found).isDirectory()) {
                             // If it's a directory, look for the executable inside
-                            let executable = findEntry(found, "chromium");
+                            let executable;
+
+                            // 1. Try to find binary via package.json
+                            const packageJsonPath = path.join(found, "package.json");
+                            if (fs.existsSync(packageJsonPath)) {
+                                try {
+                                    const pkg = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
+                                    if (pkg.bin) {
+                                        let binPath;
+                                        if (typeof pkg.bin === "string") {
+                                            binPath = pkg.bin;
+                                        } else if (typeof pkg.bin === "object") {
+                                            binPath = pkg.bin.chromium || pkg.bin.chrome || pkg.bin["chromium-browser"] || Object.values(pkg.bin)[0];
+                                        }
+
+                                        if (binPath) {
+                                            const possiblePath = path.join(found, binPath);
+                                            if (fs.existsSync(possiblePath) && !fs.statSync(possiblePath).isDirectory()) {
+                                                executable = possiblePath;
+                                            }
+                                        }
+                                    }
+                                } catch (e) {
+                                    console.error("Failed to parse package.json:", e);
+                                }
+                            }
+
+                            // 2. Try standard names if package.json failed
+                            if (!executable) executable = findEntry(found, "chromium");
                             if (!executable) executable = findEntry(found, "chrome");
+                            if (!executable) executable = findEntry(found, "chromium-browser");
                             if (!executable) executable = findEntry(found, "headless_shell");
 
                             if (executable && !fs.statSync(executable).isDirectory()) {
@@ -126,8 +155,16 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
                             } else {
                                 // List files in the directory for debugging
                                 const files = fs.readdirSync(found);
+                                let binFiles: string[] = [];
+                                const binDir = path.join(found, "bin");
+                                if (fs.existsSync(binDir) && fs.statSync(binDir).isDirectory()) {
+                                    binFiles = fs.readdirSync(binDir).map(f => `bin/${f}`);
+                                }
+
                                 console.log("Files in chromium dir:", files);
-                                throw new Error(`Chromium binary not found inside chromium directory! Contents: ${files.join(", ")}`);
+                                if (binFiles.length > 0) console.log("Files in bin dir:", binFiles);
+
+                                throw new Error(`Chromium binary not found inside chromium directory! Contents: ${files.join(", ")}${binFiles.length ? ", " + binFiles.join(", ") : ""}`);
                             }
                         } else {
                             fs.renameSync(found, finalChromiumPath);
@@ -138,7 +175,7 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
                 }
 
                 // Double check if finalChromiumPath is a directory
-                if (fs.statSync(finalChromiumPath).isDirectory()) {
+                if (fs.existsSync(finalChromiumPath) && fs.statSync(finalChromiumPath).isDirectory()) {
                     console.log("finalChromiumPath is a directory, looking for executable inside...");
                     const executable = findEntry(finalChromiumPath, "chromium");
                     if (executable && !fs.statSync(executable).isDirectory()) {
