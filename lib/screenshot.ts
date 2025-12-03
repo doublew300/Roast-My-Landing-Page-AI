@@ -86,108 +86,36 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
                 zip.extractAllTo(extractDir, true);
                 fs.unlinkSync(zipPath);
 
-                // 4. Find al2023.tar.br
-                const tarBrPath = findEntry(extractDir, "al2023.tar.br");
-                if (!tarBrPath) {
-                    throw new Error("Could not find al2023.tar.br in extracted layer!");
-                }
-                console.log("Found al2023.tar.br at:", tarBrPath);
-
-                // 5. Decompress Brotli (.br -> .tar)
-                const tarPath = path.join(extractDir, "chromium.tar");
-                console.log("Decompressing Brotli...");
-                const brotliData = fs.readFileSync(tarBrPath);
-                const tarData = zlib.brotliDecompressSync(brotliData);
-                fs.writeFileSync(tarPath, tarData);
-
-                // 6. Extract Tar (.tar -> files)
-                console.log("Extracting Tar...");
-                // Use node-tar to extract
-                await tar.x({
-                    file: tarPath,
-                    cwd: extractDir
-                });
-                fs.unlinkSync(tarPath);
-
-                // 7. Verify Binary
-                if (!fs.existsSync(finalChromiumPath)) {
-                    // Try to find it if it's nested
-                    const found = findEntry(extractDir, "chromium");
-                    if (found) {
-                        // Move it to expected location or update path
-                        if (fs.statSync(found).isDirectory()) {
-                            // If it's a directory, look for the executable inside
-                            let executable;
-
-                            // 1. Try to find binary via package.json
-                            const packageJsonPath = path.join(found, "package.json");
-                            if (fs.existsSync(packageJsonPath)) {
-                                try {
-                                    const pkg = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
-                                    if (pkg.bin) {
-                                        let binPath;
-                                        if (typeof pkg.bin === "string") {
-                                            binPath = pkg.bin;
-                                        } else if (typeof pkg.bin === "object") {
-                                            binPath = pkg.bin.chromium || pkg.bin.chrome || pkg.bin["chromium-browser"] || Object.values(pkg.bin)[0];
-                                        }
-
-                                        if (binPath) {
-                                            const possiblePath = path.join(found, binPath);
-                                            if (fs.existsSync(possiblePath) && !fs.statSync(possiblePath).isDirectory()) {
-                                                executable = possiblePath;
-                                            }
-                                        }
-                                    }
-                                } catch (e) {
-                                    console.error("Failed to parse package.json:", e);
-                                }
-                            }
-
-                            // 2. Try standard names if package.json failed
-                            if (!executable) executable = findEntry(found, "chromium");
-                            if (!executable) executable = findEntry(found, "chrome");
-                            if (!executable) executable = findEntry(found, "chromium-browser");
-                            if (!executable) executable = findEntry(found, "headless_shell");
-
-                            if (executable && !fs.statSync(executable).isDirectory()) {
-                                fs.renameSync(executable, finalChromiumPath);
-                            } else {
-                                // List files in the directory for debugging
-                                const files = fs.readdirSync(found);
-                                let binFiles: string[] = [];
-                                const binDir = path.join(found, "bin");
-                                if (fs.existsSync(binDir) && fs.statSync(binDir).isDirectory()) {
-                                    binFiles = fs.readdirSync(binDir).map(f => `bin/${f}`);
-                                }
-
-                                console.log("Files in chromium dir:", files);
-                                if (binFiles.length > 0) console.log("Files in bin dir:", binFiles);
-
-                                throw new Error(`Chromium binary not found inside chromium directory! Contents: ${files.join(", ")}${binFiles.length ? ", " + binFiles.join(", ") : ""}`);
-                            }
-                        } else {
-                            fs.renameSync(found, finalChromiumPath);
+                // 4. Find chromium.br
+                const chromiumBrPath = findEntry(extractDir, "chromium.br");
+                if (!chromiumBrPath) {
+                    // Fallback to al2023.tar.br if chromium.br not found (legacy support)
+                    const tarBrPath = findEntry(extractDir, "al2023.tar.br");
+                    if (!tarBrPath) {
+                        const files = fs.readdirSync(extractDir);
+                        let binFiles: string[] = [];
+                        const binDir = path.join(extractDir, "bin");
+                        if (fs.existsSync(binDir) && fs.statSync(binDir).isDirectory()) {
+                            binFiles = fs.readdirSync(binDir).map(f => `bin/${f}`);
                         }
-                    } else {
-                        throw new Error("Chromium binary not found after tar extraction!");
+                        throw new Error(`Could not find chromium.br or al2023.tar.br! Contents: ${files.join(", ")}${binFiles.length ? ", " + binFiles.join(", ") : ""}`);
                     }
+
+                    console.log("Found al2023.tar.br at:", tarBrPath);
+                    throw new Error("Unexpected: chromium.br not found but al2023.tar.br is present. Please report this.");
                 }
 
-                // Double check if finalChromiumPath is a directory
-                if (fs.existsSync(finalChromiumPath) && fs.statSync(finalChromiumPath).isDirectory()) {
-                    console.log("finalChromiumPath is a directory, looking for executable inside...");
-                    const executable = findEntry(finalChromiumPath, "chromium");
-                    if (executable && !fs.statSync(executable).isDirectory()) {
-                        // Move executable to a temp path, remove dir, move back
-                        const tempPath = path.join(extractDir, "chromium_temp");
-                        fs.renameSync(executable, tempPath);
-                        fs.rmSync(finalChromiumPath, { recursive: true, force: true });
-                        fs.renameSync(tempPath, finalChromiumPath);
-                    } else {
-                        console.log("Contents of finalChromiumPath:", fs.readdirSync(finalChromiumPath));
-                        throw new Error("finalChromiumPath is a directory and executable not found inside!");
-                    }
+                console.log("Found chromium.br at:", chromiumBrPath);
+
+                // 5. Decompress Brotli directly to final executable
+                console.log("Decompressing chromium.br...");
+                const brotliData = fs.readFileSync(chromiumBrPath);
+                const decompressedData = zlib.brotliDecompressSync(brotliData);
+                fs.writeFileSync(finalChromiumPath, decompressedData);
+
+                // 6. Verify and chmod
+                if (!fs.existsSync(finalChromiumPath)) {
+                    throw new Error("Chromium binary not found after decompression!");
                 }
 
                 fs.chmodSync(finalChromiumPath, 0o755);
