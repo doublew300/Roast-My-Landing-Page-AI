@@ -117,13 +117,17 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
                         // Move it to expected location or update path
                         if (fs.statSync(found).isDirectory()) {
                             // If it's a directory, look for the executable inside
-                            const executable = findEntry(found, "chromium");
+                            let executable = findEntry(found, "chromium");
+                            if (!executable) executable = findEntry(found, "chrome");
+                            if (!executable) executable = findEntry(found, "headless_shell");
+
                             if (executable && !fs.statSync(executable).isDirectory()) {
                                 fs.renameSync(executable, finalChromiumPath);
                             } else {
                                 // List files in the directory for debugging
-                                console.log("Files in chromium dir:", fs.readdirSync(found));
-                                throw new Error("Chromium binary not found inside chromium directory!");
+                                const files = fs.readdirSync(found);
+                                console.log("Files in chromium dir:", files);
+                                throw new Error(`Chromium binary not found inside chromium directory! Contents: ${files.join(", ")}`);
                             }
                         } else {
                             fs.renameSync(found, finalChromiumPath);
