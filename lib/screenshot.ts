@@ -1,4 +1,5 @@
 import core from "puppeteer-core";
+// @ts-ignore
 import chromium from "@sparticuz/chromium-min";
 import path from "path";
 import fs from "fs";
@@ -59,16 +60,26 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
                 fs.unlinkSync(zipPath);
 
                 // 5. Make binary executable
-                fs.chmodSync(chromiumPath, 0o755);
+                if (fs.existsSync(chromiumPath)) {
+                    fs.chmodSync(chromiumPath, 0o755);
+                }
             } else {
                 console.log("Chromium found in /tmp, skipping download.");
             }
 
+            // DEBUG: List files to verify structure
+            console.log("Files in extractDir:", fs.readdirSync(extractDir));
+            if (fs.existsSync(libDir)) {
+                console.log("Files in libDir:", fs.readdirSync(libDir));
+            } else {
+                console.log("libDir does not exist:", libDir);
+            }
+
             // 6. Set LD_LIBRARY_PATH to include the extracted 'lib' folder
-            // This is the CRITICAL fix for "error while loading shared libraries: libnss3.so"
             const currentLibraryPath = process.env.LD_LIBRARY_PATH || "";
-            process.env.LD_LIBRARY_PATH = `${libDir}:${extractDir}:${currentLibraryPath}`;
-            console.log(`LD_LIBRARY_PATH set to: ${process.env.LD_LIBRARY_PATH}`);
+            const newLibraryPath = `${libDir}:${extractDir}:${currentLibraryPath}`;
+            process.env.LD_LIBRARY_PATH = newLibraryPath;
+            console.log(`LD_LIBRARY_PATH set to: ${newLibraryPath}`);
 
             browser = await core.launch({
                 args: [
@@ -78,13 +89,16 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
                     "--no-sandbox",
                     "--disable-setuid-sandbox",
                     "--disable-dev-shm-usage",
-                    // Explicitly point to the libraries if LD_LIBRARY_PATH fails (backup)
                     `--disable-gpu`,
                     `--no-zygote`,
                 ],
                 defaultViewport: chromium.defaultViewport,
                 executablePath: chromiumPath,
                 headless: chromium.headless as boolean | "shell",
+                env: {
+                    ...process.env,
+                    LD_LIBRARY_PATH: newLibraryPath
+                }
             });
 
         } else {
