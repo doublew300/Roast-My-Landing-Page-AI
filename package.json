@@ -10,8 +10,9 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.11.1",
-    "@sparticuz/chromium": "^132.0.0",
+    "@sparticuz/chromium-min": "^132.0.0",
     "@supabase/supabase-js": "^2.43.1",
+    "adm-zip": "^0.5.16",
     "downloadjs": "^1.4.7",
     "html-to-image": "^1.11.11",
     "lucide-react": "^0.378.0",
@@ -23,6 +24,7 @@
     "sonner": "^1.4.41"
   },
   "devDependencies": {
+    "@types/adm-zip": "^0.5.7",
     "@types/downloadjs": "^1.4.6",
     "@types/node": "^20",
     "@types/react": "^18",
