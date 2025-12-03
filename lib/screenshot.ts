@@ -110,15 +110,42 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
                 fs.unlinkSync(tarPath);
 
                 // 7. Verify Binary
-                // The tarball usually extracts to a 'chromium' file or folder
                 if (!fs.existsSync(finalChromiumPath)) {
                     // Try to find it if it's nested
                     const found = findEntry(extractDir, "chromium");
                     if (found) {
                         // Move it to expected location or update path
-                        fs.renameSync(found, finalChromiumPath);
+                        if (fs.statSync(found).isDirectory()) {
+                            // If it's a directory, look for the executable inside
+                            const executable = findEntry(found, "chromium");
+                            if (executable && !fs.statSync(executable).isDirectory()) {
+                                fs.renameSync(executable, finalChromiumPath);
+                            } else {
+                                // List files in the directory for debugging
+                                console.log("Files in chromium dir:", fs.readdirSync(found));
+                                throw new Error("Chromium binary not found inside chromium directory!");
+                            }
+                        } else {
+                            fs.renameSync(found, finalChromiumPath);
+                        }
                     } else {
                         throw new Error("Chromium binary not found after tar extraction!");
+                    }
+                }
+
+                // Double check if finalChromiumPath is a directory
+                if (fs.statSync(finalChromiumPath).isDirectory()) {
+                    console.log("finalChromiumPath is a directory, looking for executable inside...");
+                    const executable = findEntry(finalChromiumPath, "chromium");
+                    if (executable && !fs.statSync(executable).isDirectory()) {
+                        // Move executable to a temp path, remove dir, move back
+                        const tempPath = path.join(extractDir, "chromium_temp");
+                        fs.renameSync(executable, tempPath);
+                        fs.rmSync(finalChromiumPath, { recursive: true, force: true });
+                        fs.renameSync(tempPath, finalChromiumPath);
+                    } else {
+                        console.log("Contents of finalChromiumPath:", fs.readdirSync(finalChromiumPath));
+                        throw new Error("finalChromiumPath is a directory and executable not found inside!");
                     }
                 }
 
