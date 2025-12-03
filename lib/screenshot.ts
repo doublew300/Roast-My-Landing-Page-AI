@@ -18,7 +18,6 @@ async function downloadFile(url: string, destPath: string): Promise<void> {
                     reject(new Error("Redirect location missing"));
                     return;
                 }
-                // Recursively follow the redirect
                 downloadFile(response.headers.location, destPath)
                     .then(resolve)
                     .catch(reject);
@@ -39,7 +38,6 @@ async function downloadFile(url: string, destPath: string): Promise<void> {
         });
 
         request.on('error', (err) => {
-            // Only unlink if the file was actually created (which happens on 200)
             if (fs.existsSync(destPath)) {
                 fs.unlink(destPath, () => { });
             }
@@ -48,57 +46,82 @@ async function downloadFile(url: string, destPath: string): Promise<void> {
     });
 }
 
+// Helper to recursively find a file or directory
+function findEntry(startDir: string, name: string): string | null {
+    if (!fs.existsSync(startDir)) return null;
+    const files = fs.readdirSync(startDir);
+    for (const file of files) {
+        const fullPath = path.join(startDir, file);
+        const stat = fs.statSync(fullPath);
+        if (file === name) {
+            return fullPath;
+        }
+        if (stat.isDirectory()) {
+            const result = findEntry(fullPath, name);
+            if (result) return result;
+        }
+    }
+    return null;
+}
+
 export async function captureScreenshot(url: string): Promise<Buffer> {
     let browser;
 
     try {
         if (process.env.VERCEL) {
-            // === VERCEL CONFIGURATION ===
             console.log("Running on Vercel...");
 
             const tmpDir = "/tmp";
             const zipPath = path.join(tmpDir, "chromium-layer.zip");
             const extractDir = path.join(tmpDir, "chromium-layer");
-            const libDir = path.join(extractDir, "lib");
-            const chromiumPath = path.join(extractDir, "chromium");
 
-            // 1. Check if already extracted
-            if (!fs.existsSync(chromiumPath) || !fs.existsSync(libDir)) {
-                console.log("Chromium not found in /tmp, downloading layer...");
+            // 1. Download & Extract if needed
+            // We force a check for the 'chromium' binary to decide if we need to re-download
+            let chromiumPath = findEntry(extractDir, "chromium");
 
-                // 2. Download the Layer Zip
+            if (!chromiumPath) {
+                console.log("Chromium binary not found, starting download/extraction...");
+
+                // Clean up any partial state
+                if (fs.existsSync(extractDir)) {
+                    fs.rmSync(extractDir, { recursive: true, force: true });
+                }
+
                 await downloadFile(CHROMIUM_LAYER_URL, zipPath);
                 console.log("Download complete. Extracting...");
 
-                // 3. Extract the Zip
                 const zip = new AdmZip(zipPath);
                 zip.extractAllTo(extractDir, true);
                 console.log("Extraction complete.");
 
-                // 4. Cleanup Zip
                 fs.unlinkSync(zipPath);
-
-                // 5. Make binary executable
-                if (fs.existsSync(chromiumPath)) {
-                    fs.chmodSync(chromiumPath, 0o755);
-                }
             } else {
-                console.log("Chromium found in /tmp, skipping download.");
+                console.log("Chromium found at:", chromiumPath);
             }
 
-            // DEBUG: List files to verify structure
-            console.log("Files in extractDir:", fs.readdirSync(extractDir));
-            if (fs.existsSync(libDir)) {
-                console.log("Files in libDir:", fs.readdirSync(libDir));
-            } else {
-                console.log("libDir does not exist:", libDir);
+            // 2. Resolve Paths Dynamically
+            chromiumPath = findEntry(extractDir, "chromium");
+            const libDir = findEntry(extractDir, "lib"); // Look for 'lib' folder
+
+            if (!chromiumPath) {
+                throw new Error("Chromium binary NOT found after extraction!");
             }
 
-            // 6. Set LD_LIBRARY_PATH to include the extracted 'lib' folder
-            const currentLibraryPath = process.env.LD_LIBRARY_PATH || "";
-            const newLibraryPath = `${libDir}:${extractDir}:${currentLibraryPath}`;
-            process.env.LD_LIBRARY_PATH = newLibraryPath;
-            console.log(`LD_LIBRARY_PATH set to: ${newLibraryPath}`);
+            // Make executable
+            fs.chmodSync(chromiumPath, 0o755);
+
+            // 3. Configure Environment
+            let launchEnv = { ...process.env };
+            if (libDir) {
+                console.log("Library directory found at:", libDir);
+                const currentLibraryPath = process.env.LD_LIBRARY_PATH || "";
+                const newLibraryPath = `${libDir}:${currentLibraryPath}`;
+                process.env.LD_LIBRARY_PATH = newLibraryPath;
+                launchEnv.LD_LIBRARY_PATH = newLibraryPath;
+                console.log("LD_LIBRARY_PATH set to:", newLibraryPath);
+            } else {
+                console.warn("WARNING: 'lib' directory not found! libnss3 error may persist.");
+            }
 
             browser = await core.launch({
                 args: [
@@ -114,14 +137,10 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
                 defaultViewport: chromium.defaultViewport,
                 executablePath: chromiumPath,
                 headless: chromium.headless as boolean | "shell",
-                env: {
-                    ...process.env,
-                    LD_LIBRARY_PATH: newLibraryPath
-                }
+                env: launchEnv
             });
 
         } else {
-            // === LOCALHOST CONFIGURATION ===
             const puppeteer = await import("puppeteer").then(m => m.default);
             browser = await puppeteer.launch({
                 headless: true,
