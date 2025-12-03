@@ -11,19 +11,38 @@ const CHROMIUM_LAYER_URL = "https://github.com/Sparticuz/chromium/releases/downl
 
 async function downloadFile(url: string, destPath: string): Promise<void> {
     return new Promise((resolve, reject) => {
-        const file = fs.createWriteStream(destPath);
-        https.get(url, (response) => {
+        const request = https.get(url, (response) => {
+            // Handle Redirects
+            if (response.statusCode === 302 || response.statusCode === 301) {
+                if (!response.headers.location) {
+                    reject(new Error("Redirect location missing"));
+                    return;
+                }
+                // Recursively follow the redirect
+                downloadFile(response.headers.location, destPath)
+                    .then(resolve)
+                    .catch(reject);
+                return;
+            }
+
             if (response.statusCode !== 200) {
                 reject(new Error(`Failed to download file: ${response.statusCode}`));
                 return;
             }
+
+            const file = fs.createWriteStream(destPath);
             response.pipe(file);
             file.on('finish', () => {
                 file.close();
                 resolve();
             });
-        }).on('error', (err) => {
-            fs.unlink(destPath, () => { });
+        });
+
+        request.on('error', (err) => {
+            // Only unlink if the file was actually created (which happens on 200)
+            if (fs.existsSync(destPath)) {
+                fs.unlink(destPath, () => { });
+            }
             reject(err);
         });
     });
