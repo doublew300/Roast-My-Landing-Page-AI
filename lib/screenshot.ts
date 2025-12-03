@@ -67,6 +67,22 @@ function findEntry(startDir: string, name: string, type: 'file' | 'directory' = 
     return null;
 }
 
+// Helper to list all files recursively for debugging
+function listAllFiles(dir: string, fileList: string[] = []): string[] {
+    if (!fs.existsSync(dir)) return fileList;
+    const files = fs.readdirSync(dir);
+    files.forEach(file => {
+        const filePath = path.join(dir, file);
+        const stat = fs.statSync(filePath);
+        if (stat.isDirectory()) {
+            listAllFiles(filePath, fileList);
+        } else {
+            fileList.push(filePath);
+        }
+    });
+    return fileList;
+}
+
 export async function captureScreenshot(url: string): Promise<Buffer> {
     let browser;
 
@@ -107,7 +123,8 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
             const libDir = findEntry(extractDir, "lib", 'directory'); // Look for 'lib' folder
 
             if (!chromiumPath) {
-                throw new Error("Chromium binary NOT found after extraction!");
+                const allFiles = listAllFiles(extractDir);
+                throw new Error(`Chromium binary NOT found! Files in ${extractDir}: ${JSON.stringify(allFiles, null, 2)}`);
             }
 
             // Make executable
