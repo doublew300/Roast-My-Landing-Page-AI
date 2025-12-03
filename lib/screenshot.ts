@@ -1,8 +1,8 @@
 import core from "puppeteer-core";
 import chromium from "@sparticuz/chromium-min";
 
-// Direct link to the verified browser build (version 116)
-const CHROMIUM_URL = "https://github.com/Sparticuz/chromium/releases/download/v116.0.0/chromium-v116.0.0-pack.tar";
+// Direct link to the verified browser build (version 119)
+const CHROMIUM_URL = "https://github.com/Sparticuz/chromium/releases/download/v119.0.0/chromium-v119.0.0-pack.tar";
 
 export async function captureScreenshot(url: string): Promise<Buffer> {
     let browser;
@@ -10,6 +10,9 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
     try {
         if (process.env.VERCEL) {
             // === VERCEL CONFIGURATION ===
+            // Load the fonts (using v112 as a stable fallback for v119)
+            await chromium.font("https://github.com/Sparticuz/chromium/releases/download/v112.0.0/aws-lambda-fonts.tar");
+
             // Specify the link to download the binary
             const executablePath = await chromium.executablePath(CHROMIUM_URL);
 

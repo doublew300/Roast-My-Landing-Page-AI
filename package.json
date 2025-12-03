@@ -8,15 +8,18 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "engines": {
+    "node": "18.x"
+  },
   "dependencies": {
     "@google/generative-ai": "^0.11.1",
-    "@sparticuz/chromium-min": "^116.0.0",
+    "@sparticuz/chromium-min": "^119.0.0",
     "@supabase/supabase-js": "^2.43.1",
     "downloadjs": "^1.4.7",
     "html-to-image": "^1.11.11",
     "lucide-react": "^0.378.0",
     "next": "14.2.3",
-    "puppeteer-core": "^20.9.0",
+    "puppeteer-core": "^21.11.0",
     "react": "^18",
     "react-dom": "^18",
     "react-markdown": "^9.0.1",
@@ -31,7 +34,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.3",
     "postcss": "^8",
-    "puppeteer": "^20.9.0",
+    "puppeteer": "^21.11.0",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
   }
