@@ -47,17 +47,20 @@ async function downloadFile(url: string, destPath: string): Promise<void> {
 }
 
 // Helper to recursively find a file or directory
-function findEntry(startDir: string, name: string): string | null {
+function findEntry(startDir: string, name: string, type: 'file' | 'directory' = 'file'): string | null {
     if (!fs.existsSync(startDir)) return null;
     const files = fs.readdirSync(startDir);
     for (const file of files) {
         const fullPath = path.join(startDir, file);
         const stat = fs.statSync(fullPath);
+
         if (file === name) {
-            return fullPath;
+            if (type === 'file' && stat.isFile()) return fullPath;
+            if (type === 'directory' && stat.isDirectory()) return fullPath;
         }
+
         if (stat.isDirectory()) {
-            const result = findEntry(fullPath, name);
+            const result = findEntry(fullPath, name, type);
             if (result) return result;
         }
     }
@@ -77,7 +80,7 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
 
             // 1. Download & Extract if needed
             // We force a check for the 'chromium' binary to decide if we need to re-download
-            let chromiumPath = findEntry(extractDir, "chromium");
+            let chromiumPath = findEntry(extractDir, "chromium", 'file');
 
             if (!chromiumPath) {
                 console.log("Chromium binary not found, starting download/extraction...");
@@ -100,8 +103,8 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
             }
 
             // 2. Resolve Paths Dynamically
-            chromiumPath = findEntry(extractDir, "chromium");
-            const libDir = findEntry(extractDir, "lib"); // Look for 'lib' folder
+            chromiumPath = findEntry(extractDir, "chromium", 'file');
+            const libDir = findEntry(extractDir, "lib", 'directory'); // Look for 'lib' folder
 
             if (!chromiumPath) {
                 throw new Error("Chromium binary NOT found after extraction!");
