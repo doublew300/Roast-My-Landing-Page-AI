@@ -34,7 +34,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.3",
     "postcss": "^8",
-    "puppeteer": "^24.0.0",
+    "puppeteer": "19.8.0",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
   }
