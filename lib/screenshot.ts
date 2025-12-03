@@ -17,7 +17,7 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
                 "--disable-gpu"
             ],
             defaultViewport: chromium.defaultViewport,
-            headless: chromium.headless,
+            headless: chromium.headless as any,
             ignoreHTTPSErrors: true,
         };
 
