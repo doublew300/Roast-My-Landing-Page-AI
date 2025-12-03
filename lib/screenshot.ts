@@ -85,7 +85,6 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
                 defaultViewport: chromium.defaultViewport,
                 executablePath: chromiumPath,
                 headless: chromium.headless as boolean | "shell",
-                ignoreHTTPSErrors: true,
             });
 
         } else {
