@@ -8,7 +8,7 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
             // Use the library to handle the binary
             // We need to point to the pack.tar for the specific version
             const executablePath = await chromium.executablePath(
-                "https://github.com/Sparticuz/chromium/releases/download/v132.0.0/chromium-v132.0.0-pack.tar"
+                "https://github.com/Sparticuz/chromium/releases/download/v123.0.1/chromium-v123.0.1-pack.tar"
             );
 
             browser = await core.launch({
