@@ -4,7 +4,7 @@ import fs from "fs";
 import https from "https";
 import AdmZip from "adm-zip";
 import zlib from "zlib";
-import { execSync } from "child_process";
+import * as tar from "tar";
 
 // URL for the Chromium Layer (contains al2023.tar.br)
 const CHROMIUM_LAYER_URL = "https://github.com/Sparticuz/chromium/releases/download/v132.0.0/chromium-v132.0.0-layer.zip";
@@ -102,8 +102,11 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
 
                 // 6. Extract Tar (.tar -> files)
                 console.log("Extracting Tar...");
-                // Use system tar command (available on AL2023)
-                execSync(`tar -xf "${tarPath}" -C "${extractDir}"`);
+                // Use node-tar to extract
+                await tar.x({
+                    file: tarPath,
+                    cwd: extractDir
+                });
                 fs.unlinkSync(tarPath);
 
                 // 7. Verify Binary
