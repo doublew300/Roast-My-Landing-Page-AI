@@ -32,6 +32,8 @@ This project leverages the latest and most efficient technologies in the ecosyst
 - **AI Integration**: [Google Gemini](https://deepmind.google/technologies/gemini/) - For multimodal generative AI features.
 - **Browser Automation**: [Puppeteer](https://pptr.dev/) - For capturing high-fidelity website screenshots (Serverless compatible).
 - **Icons**: [Lucide React](https://lucide.dev/) - For beautiful, consistent iconography.
+- **Caching**: [Upstash Redis](https://upstash.com/) - For high-performance API response caching.
+- **PWA**: Progressive Web App capabilities for installability and offline support.
 
 ## 🏗️ System Architecture
 

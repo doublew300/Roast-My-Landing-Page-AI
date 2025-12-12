@@ -28,6 +28,7 @@ export const metadata: Metadata = {
         shortcut: '/favicon.svg',
         apple: '/favicon.svg',
     },
+    manifest: '/manifest.json',
 };
 
 import Footer from "./components/Footer";

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Flame, Search, ArrowLeft } from "lucide-react";
+import { BentoGrid } from "@/components/ui/bento-grid";
 
 export default function GalleryPage() {
     const [searchTerm, setSearchTerm] = useState("");
@@ -142,11 +143,14 @@ export default function GalleryPage() {
                         ))}
                     </div>
                 ) : (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <BentoGrid className="max-w-6xl mx-auto">
                         {filteredRoasts.map((site, i) => (
-                            <div key={site.id || i} className="group glass-card rounded-3xl overflow-hidden hover:border-orange-500/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/10 flex flex-col">
+                            <div
+                                key={site.id || i}
+                                className={`group glass-card rounded-3xl overflow-hidden hover:border-orange-500/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/10 flex flex-col ${i === 3 || i === 6 ? "md:col-span-2" : ""}`}
+                            >
                                 {/* Image / Header */}
-                                <div className="h-48 bg-neutral-950 relative overflow-hidden border-b border-neutral-800/50">
+                                <div className="h-48 bg-neutral-950 relative overflow-hidden border-b border-neutral-800/50 block">
                                     {site.image_url ? (
                                         <img
                                             src={site.image_url}
@@ -195,7 +199,7 @@ export default function GalleryPage() {
                                 </div>
                             </div>
                         ))}
-                    </div>
+                    </BentoGrid>
                 )}
 
                 {

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Flame, Send, AlertCircle, Share2, Loader2, Download } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Flame, AlertCircle, Share2, Download, Loader2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 export default function Home() {
     const [url, setUrl] = useState("");
@@ -88,12 +89,6 @@ export default function Home() {
         const text = `My website just got roasted by AI! 🔥 Check it out: ${url}`;
         navigator.clipboard.writeText(text);
         toast.success("Link copied to clipboard!");
-
-        // Optional: Open Twitter as well
-        // window.open(
-        //     `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,
-        //     "_blank"
-        // );
     };
 
     const handleRandomRoast = () => {
@@ -131,27 +126,39 @@ export default function Home() {
     };
 
     return (
-        <main className="min-h-screen text-white selection:bg-orange-500 selection:text-white">
-            <div className="container mx-auto px-4 py-20 max-w-6xl">
+        <main className="min-h-screen py-20 px-4">
+            <div className="container mx-auto max-w-6xl relative z-10 w-full">
                 {/* Hero Section */}
-                <div className="text-center mb-16 space-y-6">
-                    <div className="inline-flex items-center justify-center p-3 bg-orange-500/10 rounded-full mb-4 ring-1 ring-orange-500/20">
+                <motion.div
+                    initial={{ opacity: 0.0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{
+                        delay: 0.3,
+                        duration: 0.8,
+                        ease: "easeInOut",
+                    }}
+                    className="text-center mb-16 space-y-6"
+                >
+                    <div className="inline-flex items-center justify-center p-3 bg-orange-500/10 rounded-full mb-4 ring-1 ring-orange-500/20 backdrop-blur-sm">
                         <Flame className="w-8 h-8 text-orange-500" />
                     </div>
+
                     <div className="flex justify-center mb-4">
                         <img
                             src="https://media1.tenor.com/m/x8v1oNUOmg4AAAAd/gordon-ramsay-its-raw.gif"
                             alt="IT'S RAW!"
-                            className="rounded-lg w-48 h-auto shadow-lg shadow-orange-500/20 rotate-3 hover:rotate-0 transition-transform duration-300"
+                            className="rounded-lg w-48 h-auto shadow-2xl shadow-orange-500/20 rotate-3"
                         />
                     </div>
-                    <h1 className="text-5xl md:text-7xl font-bold tracking-tight bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
+
+                    <h1 className="text-5xl md:text-8xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400">
                         Will Your Website <br />
-                        <span className="text-orange-500 text-glow">Survive the Roast?</span>
+                        <span className="text-orange-500 text-glow inline-block transform hover:scale-105 transition-transform duration-300">Survive the Roast?</span>
                     </h1>
-                    <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-                        AI-powered brutal design critique via Gemini. Enter your URL if you
-                        dare. No mercy shown.
+
+                    <p className="text-xl md:text-2xl text-neutral-300 max-w-2xl mx-auto font-light leading-relaxed">
+                        AI-powered brutal design critique via Gemini.
+                        Enter your URL if you dare. <span className="font-semibold text-orange-400">No mercy shown.</span>
                     </p>
 
                     <form onSubmit={handleSubmit} className="max-w-xl mx-auto mt-10">
@@ -228,208 +235,213 @@ export default function Home() {
                             </div>
                         )
                     }
-                </div >
+                </motion.div>
 
                 {/* Results Section */}
                 {
                     result && (
-                        <div className="animate-in fade-in slide-in-from-bottom-10 duration-700">
-                            <div className="grid md:grid-cols-2 gap-8 items-start">
-                                {/* Screenshot */}
-                                <div className="relative group rounded-xl overflow-hidden border border-neutral-800 bg-neutral-900/50">
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-10"></div>
-                                    <img
-                                        src={result.image}
-                                        alt="Website Screenshot"
-                                        className="w-full h-auto object-cover"
-                                    />
-                                    <div className="absolute bottom-4 left-4 z-20">
-                                        <p className="text-sm font-medium text-white/80 bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm">
-                                            {url}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Roast Content */}
-                                <div className="space-y-6">
-                                    <div className="bg-neutral-900/50 border border-neutral-800 rounded-3xl p-8 relative overflow-hidden">
-                                        <div className="absolute top-0 right-0 p-4 opacity-10">
-                                            <Flame className="w-24 h-24 text-orange-500" />
-                                        </div>
-
-                                        <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-orange-500">
-                                            <span className="text-3xl">🔥</span> The Verdict
-                                            <span className={`text-4xl font-black ml-auto ${result.score < 3 ? 'text-red-600' : 'text-orange-500'}`}>
-                                                {result.score}/10
-                                            </span>
-                                        </h3>
-
-                                        <div className="prose prose-invert prose-orange max-w-none text-gray-300">
-                                            <ReactMarkdown
-                                                components={{
-                                                    p: ({ node, ...props }) => <p className="mb-6 leading-loose" {...props} />,
-                                                    ul: ({ node, ...props }) => <ul className="space-y-3 my-6 list-none" {...props} />,
-                                                    li: ({ node, ...props }) => (
-                                                        <li className="flex items-start gap-3 leading-relaxed" {...props}>
-                                                            <span className="mt-1.5 w-2 h-2 rounded-full bg-orange-500 shrink-0" />
-                                                            <span>{props.children}</span>
-                                                        </li>
-                                                    ),
-                                                    strong: ({ node, ...props }) => <strong className="text-white font-bold" {...props} />,
-                                                }}
-                                            >
-                                                {result.roast}
-                                            </ReactMarkdown>
-                                        </div>
-
-                                        <div className="mt-8 pt-6 border-t border-neutral-800 flex flex-col sm:flex-row justify-between items-center gap-4">
-                                            <div className="flex items-center gap-4">
-                                                <p className="text-sm text-gray-500">
-                                                    Generated by Gemini 3 Pro
+                        <div className="animate-in fade-in slide-in-from-bottom-10 duration-700 w-full">
+                            <div className="glass-card relative group/card w-full h-auto rounded-xl p-6 border">
+                                <div className="grid md:grid-cols-2 gap-8 items-start w-full">
+                                    {/* Screenshot */}
+                                    <div className="w-full">
+                                        <div className="relative group rounded-xl overflow-hidden border border-neutral-800 bg-neutral-900/50">
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-10"></div>
+                                            <img
+                                                src={result.image}
+                                                alt="Website Screenshot"
+                                                className="w-full h-auto object-cover"
+                                            />
+                                            <div className="absolute bottom-4 left-4 z-20">
+                                                <p className="text-sm font-medium text-white/80 bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm">
+                                                    {url}
                                                 </p>
                                             </div>
-                                            <div className="flex flex-wrap gap-3 justify-center sm:justify-end">
-                                                <button
-                                                    onClick={async () => {
-                                                        if (!result?.roast) return;
-                                                        try {
-                                                            const btn = document.getElementById('play-audio-btn');
-                                                            if (btn) btn.innerHTML = '<span class="animate-spin">⏳</span>';
-
-                                                            const res = await fetch('/api/speak', {
-                                                                method: 'POST',
-                                                                headers: { 'Content-Type': 'application/json' },
-                                                                body: JSON.stringify({ text: result.roast, persona })
-                                                            });
-
-                                                            if (!res.ok) {
-                                                                const errData = await res.json();
-                                                                throw new Error(errData.error || 'Failed to generate audio');
-                                                            }
-
-                                                            const blob = await res.blob();
-                                                            const audio = new Audio(URL.createObjectURL(blob));
-                                                            audio.play();
-
-                                                            if (btn) btn.innerHTML = '🔊 Play';
-                                                        } catch (e: any) {
-                                                            console.error(e);
-                                                            toast.error(e.message || "Failed to play audio.");
-                                                            const btn = document.getElementById('play-audio-btn');
-                                                            if (btn) btn.innerHTML = '🔊 Play';
-                                                        }
-                                                    }}
-                                                    id="play-audio-btn"
-                                                    className="bg-orange-500/10 hover:bg-orange-500/20 text-orange-500 border border-orange-500/20 px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2"
-                                                >
-                                                    🔊 Play
-                                                </button>
-
-                                                <button
-                                                    onClick={handleDownloadCard}
-                                                    className="bg-neutral-800 hover:bg-neutral-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2"
-                                                >
-                                                    <Download className="w-4 h-4" />
-                                                    Save
-                                                </button>
-
-                                                <button
-                                                    onClick={handleShare}
-                                                    className="bg-neutral-800 hover:bg-neutral-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2"
-                                                >
-                                                    <Share2 className="w-4 h-4" />
-                                                    Share
-                                                </button>
-                                            </div>
                                         </div>
                                     </div>
 
-                                    {/* Hidden Roast Card for Image Generation */}
-                                    <div className="absolute top-0 left-[-9999px]">
-                                        <div ref={roastCardRef} className="w-[800px] bg-neutral-900 p-12 rounded-3xl border border-neutral-800 text-white relative overflow-hidden">
-                                            <div className="absolute top-0 right-0 p-8 opacity-10">
-                                                <Flame className="w-48 h-48 text-orange-500" />
-                                            </div>
-                                            <div className="flex items-center gap-4 mb-8">
-                                                <div className="p-3 bg-orange-500/10 rounded-full ring-1 ring-orange-500/20">
-                                                    <Flame className="w-8 h-8 text-orange-500" />
+                                    {/* Roast Content */}
+                                    <div className="w-full">
+                                        <div className="space-y-6">
+                                            <div className="bg-neutral-900/50 border border-neutral-800 rounded-3xl p-8 relative overflow-hidden">
+                                                <div className="absolute top-0 right-0 p-4 opacity-10">
+                                                    <Flame className="w-24 h-24 text-orange-500" />
                                                 </div>
-                                                <h2 className="text-3xl font-bold">RoastMyLandingPage.ai</h2>
-                                            </div>
 
-                                            <div className="flex gap-8 items-start mb-8">
-                                                <div className="w-1/2 rounded-xl overflow-hidden border border-neutral-800 shadow-2xl">
-                                                    <img src={result.image} className="w-full h-auto object-cover" alt="Site" />
+                                                <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-orange-500">
+                                                    <span className="text-3xl">🔥</span> The Verdict
+                                                    <span className={`text-4xl font-black ml-auto ${result.score < 3 ? 'text-red-600' : 'text-orange-500'}`}>
+                                                        {result.score}/10
+                                                    </span>
+                                                </h3>
+
+                                                <div className="prose prose-invert prose-orange max-w-none text-gray-300">
+                                                    <ReactMarkdown
+                                                        components={{
+                                                            p: ({ node, ...props }) => <p className="mb-6 leading-loose" {...props} />,
+                                                            ul: ({ node, ...props }) => <ul className="space-y-3 my-6 list-none" {...props} />,
+                                                            li: ({ node, ...props }) => (
+                                                                <li className="flex items-start gap-3 leading-relaxed" {...props}>
+                                                                    <span className="mt-1.5 w-2 h-2 rounded-full bg-orange-500 shrink-0" />
+                                                                    <span>{props.children}</span>
+                                                                </li>
+                                                            ),
+                                                            strong: ({ node, ...props }) => <strong className="text-white font-bold" {...props} />,
+                                                        }}
+                                                    >
+                                                        {result.roast}
+                                                    </ReactMarkdown>
                                                 </div>
-                                                <div className="w-1/2">
-                                                    <div className="flex items-center gap-3 mb-4">
-                                                        <span className="text-6xl">🔥</span>
-                                                        <span className={`text-6xl font-black ${result.score < 3 ? 'text-red-600' : 'text-orange-500'}`}>
-                                                            {result.score}/10
-                                                        </span>
+
+                                                <div className="mt-8 pt-6 border-t border-neutral-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+                                                    <div className="flex items-center gap-4">
+                                                        <p className="text-sm text-gray-500">
+                                                            Generated by Gemini 3 Pro
+                                                        </p>
                                                     </div>
-                                                    <h3 className="text-2xl font-bold text-gray-200 mb-2">{url}</h3>
-                                                    <p className="text-gray-400">Verdict by {persona === 'ramsay' ? 'Gordon' : persona === 'jobs' ? 'Steve' : 'VC Bro'}</p>
+                                                    <div className="flex flex-wrap gap-3 justify-center sm:justify-end">
+                                                        <button
+                                                            onClick={async () => {
+                                                                if (!result?.roast) return;
+                                                                try {
+                                                                    const btn = document.getElementById('play-audio-btn');
+                                                                    if (btn) btn.innerHTML = '<span class="animate-spin">⏳</span>';
+
+                                                                    const res = await fetch('/api/speak', {
+                                                                        method: 'POST',
+                                                                        headers: { 'Content-Type': 'application/json' },
+                                                                        body: JSON.stringify({ text: result.roast, persona })
+                                                                    });
+
+                                                                    if (!res.ok) {
+                                                                        const errData = await res.json();
+                                                                        throw new Error(errData.error || 'Failed to generate audio');
+                                                                    }
+
+                                                                    const blob = await res.blob();
+                                                                    const audio = new Audio(URL.createObjectURL(blob));
+                                                                    audio.play();
+
+                                                                    if (btn) btn.innerHTML = '🔊 Play';
+                                                                } catch (e: any) {
+                                                                    console.error(e);
+                                                                    toast.error(e.message || "Failed to play audio.");
+                                                                    const btn = document.getElementById('play-audio-btn');
+                                                                    if (btn) btn.innerHTML = '🔊 Play';
+                                                                }
+                                                            }}
+                                                            id="play-audio-btn"
+                                                            className="bg-orange-500/10 hover:bg-orange-500/20 text-orange-500 border border-orange-500/20 px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2"
+                                                        >
+                                                            🔊 Play
+                                                        </button>
+                                                        <button
+                                                            onClick={handleDownloadCard}
+                                                            className="bg-neutral-800 hover:bg-neutral-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2"
+                                                        >
+                                                            <Download className="w-4 h-4" />
+                                                            Save
+                                                        </button>
+
+                                                        <button
+                                                            onClick={handleShare}
+                                                            className="bg-neutral-800 hover:bg-neutral-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2"
+                                                        >
+                                                            <Share2 className="w-4 h-4" />
+                                                            Share
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
 
-                                            <div className="bg-neutral-950/50 p-6 rounded-xl border border-neutral-800">
-                                                <p className="text-xl leading-relaxed text-gray-300 font-medium">
-                                                    &quot;{result.roast.split('.')[0]}.&quot;
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Pro Tips Paywall */}
-                                    <div className="bg-neutral-900/30 border border-neutral-800 rounded-xl p-8 relative overflow-hidden min-h-[400px]">
-                                        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center">
-                                            <div className="text-center space-y-4 p-8 bg-neutral-950/90 border border-yellow-500/20 rounded-2xl shadow-2xl shadow-yellow-500/10 backdrop-blur-xl max-w-md mx-4">
-                                                <div className="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto ring-1 ring-yellow-500/50 mb-4">
-                                                    <span className="text-3xl">🔒</span>
-                                                </div>
-                                                <h3 className="text-2xl font-bold text-white">Unlock Professional Fixes</h3>
-                                                <p className="text-gray-400 text-base">
-                                                    Get 3 actionable, expert-level UX improvements to fix these issues immediately.
-                                                </p>
-                                                <button
-                                                    onClick={() => toast.info("Payment gateway integration coming soon!")}
-                                                    className="mt-4 bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-400 hover:to-yellow-300 text-black font-bold px-10 py-6 rounded-full transition-all transform hover:scale-105 hover:-translate-y-1 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/40 text-xl w-full"
-                                                >
-                                                    Unlock Expert Fixes & Report ($9)
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div
-                                            className="blur-md select-none pointer-events-none opacity-60"
-                                            style={{
-                                                maskImage: 'linear-gradient(to bottom, black 30%, transparent 100%)',
-                                                WebkitMaskImage: 'linear-gradient(to bottom, black 30%, transparent 100%)'
-                                            }}
-                                        >
-                                            <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-green-500">
-                                                <span className="text-3xl">💡</span> Pro Tips
-                                            </h3>
-                                            <ul className="space-y-8">
-                                                {result.pro_tips?.map((tip, index) => (
-                                                    <li key={index} className="flex items-start gap-4">
-                                                        <div className="w-8 h-8 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center text-base font-bold shrink-0 mt-1">
-                                                            {index + 1}
+                                            {/* Hidden Roast Card for Image Generation */}
+                                            <div className="absolute top-0 left-[-9999px]">
+                                                <div ref={roastCardRef} className="w-[800px] bg-neutral-900 p-12 rounded-3xl border border-neutral-800 text-white relative overflow-hidden">
+                                                    <div className="absolute top-0 right-0 p-8 opacity-10">
+                                                        <Flame className="w-48 h-48 text-orange-500" />
+                                                    </div>
+                                                    <div className="flex items-center gap-4 mb-8">
+                                                        <div className="p-3 bg-orange-500/10 rounded-full ring-1 ring-orange-500/20">
+                                                            <Flame className="w-8 h-8 text-orange-500" />
                                                         </div>
-                                                        <p className="text-gray-300 leading-relaxed text-lg">{tip}</p>
-                                                    </li>
-                                                ))}
-                                            </ul>
+                                                        <h2 className="text-3xl font-bold">RoastMyLandingPage.ai</h2>
+                                                    </div>
+
+                                                    <div className="flex gap-8 items-start mb-8">
+                                                        <div className="w-1/2 rounded-xl overflow-hidden border border-neutral-800 shadow-2xl">
+                                                            <img src={result.image} className="w-full h-auto object-cover" alt="Site" />
+                                                        </div>
+                                                        <div className="w-1/2">
+                                                            <div className="flex items-center gap-3 mb-4">
+                                                                <span className="text-6xl">🔥</span>
+                                                                <span className={`text-6xl font-black ${result.score < 3 ? 'text-red-600' : 'text-orange-500'}`}>
+                                                                    {result.score}/10
+                                                                </span>
+                                                            </div>
+                                                            <h3 className="text-2xl font-bold text-gray-200 mb-2">{url}</h3>
+                                                            <p className="text-gray-400">Verdict by {persona === 'ramsay' ? 'Gordon' : persona === 'jobs' ? 'Steve' : 'VC Bro'}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="bg-neutral-950/50 p-6 rounded-xl border border-neutral-800">
+                                                        <p className="text-xl leading-relaxed text-gray-300 font-medium">
+                                                            &quot;{result.roast.split('.')[0]}.&quot;
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Pro Tips Paywall */}
+                                            <div className="bg-neutral-900/30 border border-neutral-800 rounded-xl p-8 relative overflow-hidden min-h-[400px]">
+                                                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center">
+                                                    <div className="text-center space-y-4 p-8 bg-neutral-950/90 border border-yellow-500/20 rounded-2xl shadow-2xl shadow-yellow-500/10 backdrop-blur-xl max-w-md mx-4">
+                                                        <div className="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto ring-1 ring-yellow-500/50 mb-4">
+                                                            <span className="text-3xl">🔒</span>
+                                                        </div>
+                                                        <h3 className="text-2xl font-bold text-white">Unlock Professional Fixes</h3>
+                                                        <p className="text-gray-400 text-base">
+                                                            Get 3 actionable, expert-level UX improvements to fix these issues immediately.
+                                                        </p>
+                                                        <button
+                                                            onClick={() => toast.info("Payment gateway integration coming soon!")}
+                                                            className="mt-4 bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-400 hover:to-yellow-300 text-black font-bold px-10 py-6 rounded-full transition-all transform hover:scale-105 hover:-translate-y-1 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/40 text-xl w-full"
+                                                        >
+                                                            Unlock Expert Fixes & Report ($9)
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    className="blur-md select-none pointer-events-none opacity-60"
+                                                    style={{
+                                                        maskImage: 'linear-gradient(to bottom, black 30%, transparent 100%)',
+                                                        WebkitMaskImage: 'linear-gradient(to bottom, black 30%, transparent 100%)'
+                                                    }}
+                                                >
+                                                    <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-green-500">
+                                                        <span className="text-3xl">💡</span> Pro Tips
+                                                    </h3>
+                                                    <ul className="space-y-8">
+                                                        {result.pro_tips?.map((tip, index) => (
+                                                            <li key={index} className="flex items-start gap-4">
+                                                                <div className="w-8 h-8 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center text-base font-bold shrink-0 mt-1">
+                                                                    {index + 1}
+                                                                </div>
+                                                                <p className="text-gray-300 leading-relaxed text-lg">{tip}</p>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            <button
+                                                onClick={handleReset}
+                                                className="w-full py-4 rounded-xl border-2 border-orange-500 text-orange-500 font-bold text-lg hover:bg-orange-500/10 transition-colors flex items-center justify-center gap-2"
+                                            >
+                                                🔥 Roast Another Site
+                                            </button>
                                         </div>
                                     </div>
-
-                                    <button
-                                        onClick={handleReset}
-                                        className="w-full py-4 rounded-xl border-2 border-orange-500 text-orange-500 font-bold text-lg hover:bg-orange-500/10 transition-colors flex items-center justify-center gap-2"
-                                    >
-                                        🔥 Roast Another Site
-                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -471,7 +483,7 @@ export default function Home() {
                         </a>
                     </div>
                 </div>
-            </div >
-        </main >
+            </div>
+        </main>
     );
 }

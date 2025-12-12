@@ -25,14 +25,25 @@ export async function generateRoast(imageBuffer: Buffer, persona: string = 'rams
                 break;
         }
 
-        const prompt = `${systemPrompt} Point out 3 specific things that suck. Be funny but insightful. Keep it under 200 words. Use markdown formatting. IMPORTANT: Use emojis in your response to make it expressive.
+        const prompt = `${systemPrompt} 
+        
+        step-by-step reasoning:
+        1. Analyze the visual hierarchy and color palette.
+        2. Evaluate the clarity of the value proposition.
+        3. Identify 3 specific friction points for the user.
+        
+        Based on this analysis, generate the roast.
+        
+        Point out 3 specific things that suck. Be funny but insightful. Keep it under 200 words. Use markdown formatting. IMPORTANT: Use emojis in your response to make it expressive.
 
-        Return the response in this strictly valid JSON format (no markdown code blocks, just raw JSON):
+        Return the response in this strictly valid JSON format, enclosed in a markdown code block:
+        \`\`\`json
         {
             "score": number, // A score from 1 to 10 where 1 is absolute garbage and 10 is perfection. Be harsh.
             "roast": string, // The markdown roast text
             "pro_tips": string[] // Array of 3 highly actionable, professional, serious UX/CRO improvements that would fix the issues mentioned.
-        }`;
+        }
+        \`\`\``;
 
         const imagePart = {
             inlineData: {
@@ -45,14 +56,29 @@ export async function generateRoast(imageBuffer: Buffer, persona: string = 'rams
         const response = await result.response;
         const text = response.text();
 
-        // Parse JSON response - handle potential markdown code blocks if Gemini adds them
-        const cleanText = text.replace(/```json\n ?|\n ? ```/g, "").trim();
+        // Robust JSON extraction for Chain-of-Thought responses
+        // 1. Try extracting from code block
+        const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || text.match(/```\n([\s\S]*?)\n```/);
+        let cleanText = "";
+
+        if (jsonMatch && jsonMatch[1]) {
+            cleanText = jsonMatch[1].trim();
+        } else {
+            // 2. Fallback: Find first { and last }
+            const firstBrace = text.indexOf('{');
+            const lastBrace = text.lastIndexOf('}');
+            if (firstBrace !== -1 && lastBrace !== -1) {
+                cleanText = text.substring(firstBrace, lastBrace + 1);
+            } else {
+                cleanText = text; // Hope for the best
+            }
+        }
 
         try {
             const jsonResponse = JSON.parse(cleanText) as RoastResponse;
             return jsonResponse;
         } catch (e) {
-            console.error("Failed to parse Gemini JSON:", text);
+            console.error("Failed to parse Gemini JSON. Raw text:", text);
             throw new Error("AI response was not valid JSON.");
         }
 
