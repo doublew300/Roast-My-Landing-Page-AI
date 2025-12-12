@@ -25,8 +25,8 @@ export async function captureScreenshot(url: string): Promise<Buffer> {
 
         await page.setViewport({ width: 1200, height: 630 });
 
-        // Timeout 30 seconds
-        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+        // Wait until network is idle (no active connections for at least 500ms) to ensure images load
+        await page.goto(url, { waitUntil: "networkidle0", timeout: 60000 });
 
         // Wait a bit for animations
         await new Promise(r => setTimeout(r, 2000));

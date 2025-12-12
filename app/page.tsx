@@ -147,7 +147,7 @@ export default function Home() {
                         <img
                             src="https://media1.tenor.com/m/x8v1oNUOmg4AAAAd/gordon-ramsay-its-raw.gif"
                             alt="IT'S RAW!"
-                            className="rounded-lg w-48 h-auto shadow-2xl shadow-orange-500/20 rotate-3"
+                            className="rounded-lg w-48 h-auto shadow-2xl shadow-orange-500/20 rotate-3 hover:rotate-0 hover:scale-105 transition-transform duration-300"
                         />
                     </div>
 
